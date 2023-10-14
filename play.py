@@ -56,9 +56,11 @@ if __name__ == '__main__':
   for _ in range(skipping_frame):
     earlier_cap.read()
 
-  output_f.write('{},{},{} seconds,{} frames\n'.format(
+  output_f.write('{},{},{},{},{} seconds,{} frames\n'.format(
       os.path.basename(earlier_video.file_name),
+      earlier_video.video_creation_time,
       os.path.basename(later_video.file_name),
+      later_video.video_creation_time,
       start_time_delta,
       skipping_frame,
   ))
