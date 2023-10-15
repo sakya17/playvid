@@ -5,8 +5,6 @@ import os
 import sys
 import time
 
-# from dateutil import parser
-
 
 _CURRENT_PATH = os.getcwd()
 _FPS = 25
@@ -29,7 +27,57 @@ class Video:
     self.video_nb_frames = self._video_stream['nb_frames']
   
 
-if __name__ == '__main__':
+def single_video():
+  file_1 = os.path.join(_CURRENT_PATH, sys.argv[1])
+
+  video_1 = Video(file_1)
+
+  output_f = open(file_1 + '_out.csv', 'w')
+
+  earlier_video = video_1
+
+  earlier_cap = earlier_video.video_capture
+
+
+  output_f.write('{},{}\n'.format(
+      os.path.basename(earlier_video.file_name),
+      earlier_video.video_creation_time,
+  ))
+
+  time = 1
+  is_focused = True
+  is_quit = False
+  is_close_1 = False
+  is_close_2 = False
+
+  while(earlier_cap.isOpened()):
+    success_1, frame_1 = earlier_cap.read()
+
+    frame_1 = cv2.resize(frame_1, (800, 400))
+
+    if success_1:
+      cv2.imshow('Video Player 1', frame_1)
+    
+    pressed_button = cv2.waitKey(_PLAYSPEED) & 0xFF
+
+    if pressed_button == ord('q'):
+      is_quit = True
+    elif pressed_button == ord('z'):
+      is_focused = True
+    elif pressed_button == ord('x'):
+      is_focused = False
+    
+    output_f.write('{},{}\n'.format(time, 1 if is_focused else 0))
+    time += 1
+    
+    is_close_1 = cv2.getWindowProperty('Video Player 1', cv2.WND_PROP_VISIBLE) < 1
+    if is_quit or is_close_1:
+      break
+    
+  earlier_cap.release()
+
+
+def dual_videos():
   file_1 = os.path.join(_CURRENT_PATH, sys.argv[1])
   file_2 = os.path.join(_CURRENT_PATH, sys.argv[2])
 
@@ -64,7 +112,6 @@ if __name__ == '__main__':
       start_time_delta,
       skipping_frame,
   ))
-
   time = 1
   is_focused = True
   is_quit = False
@@ -75,8 +122,8 @@ if __name__ == '__main__':
     success_1, frame_1 = earlier_cap.read()
     success_2, frame_2 = later_cap.read()
 
-    frame_2 = cv2.resize(frame_2, (500, 250))
-    frame_1 = cv2.resize(frame_1, (500, 250))
+    frame_2 = cv2.resize(frame_2, (800, 400))
+    frame_1 = cv2.resize(frame_1, (800, 400))
 
     if success_1 and success_2:
       cv2.imshow('Video Player 1', frame_1)
@@ -101,3 +148,9 @@ if __name__ == '__main__':
     
   earlier_cap.release()
   later_cap.release()
+
+if __name__ == '__main__':
+  if len(sys.argv) >= 3:
+    dual_videos()
+  else:
+    single_video()
