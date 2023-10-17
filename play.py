@@ -5,6 +5,8 @@ import os
 import sys
 import time
 
+from dateutil import parser
+
 
 _CURRENT_PATH = os.getcwd()
 _FPS = 25
@@ -17,11 +19,16 @@ class Video:
     self.file_name = file_name
     self.video_capture = cv2.VideoCapture(self.file_name)
     streams = ffmpeg.probe(self.file_name)['streams']
-    self._video_stream = [s for s in streams if s['codec_type'] == 'audio'][0]
+    self._video_stream = [s for s in streams if s['codec_type'] == 'video'][0]
     video_creation_time = self._video_stream['tags']['creation_time']
-    self.video_creation_time = time.mktime(
-        datetime.datetime.fromisoformat(video_creation_time).timetuple()
-    )
+    try:
+      self.video_creation_time = time.mktime(
+          datetime.datetime.fromisoformat(video_creation_time).timetuple()
+      )
+    except ValueError:
+      self.video_creation_time = time.mktime(
+          parser.isoparse(video_creation_time).timetuple()
+      )
     self.video_duration = self._video_stream['duration']
     self.video_duration_ts = self._video_stream['duration_ts']
     self.video_nb_frames = self._video_stream['nb_frames']
