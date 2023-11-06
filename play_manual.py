@@ -81,7 +81,7 @@ def single_video():
     if video.is_playing:
       output_f.write('{},{}\n'.format(video.current_frame, 1 if is_focused else 0))
     
-    video.is_close = cv2.getWindowProperty('Video Player 1', cv2.WND_PROP_VISIBLE) < 1
+    video.is_close = cv2.getWindowProperty('Video Player', cv2.WND_PROP_VISIBLE) < 1
     if is_quit or video.is_close:
       break
     
